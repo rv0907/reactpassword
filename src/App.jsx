@@ -1,11 +1,11 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 
 const App = () => {
   const [length, setLength] = useState(10);
   const [numAllow, setNumAllow] = useState(false);
   const [charAllow, setCharAllow] = useState(false);
   const [pass, setPass] = useState("");
-
+  const passwordref = useRef(null);
   const generatePassword = useCallback(() => {
     let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     if (numAllow) characters += "0123456789";
@@ -18,13 +18,16 @@ const App = () => {
     }
     setPass(newPass);
   }, [length, numAllow, charAllow]);
-
+  const clipboardcopy = useCallback(() => {
+    passwordref.current?.select();
+    window.navigator.clipboard.writeText(pass);
+  }, [pass]);
   useEffect(() => {
     generatePassword();
   }, [length, numAllow, charAllow, generatePassword]);
 
   return (
-    <form style={{ padding: "20px" }}>
+    <form style={{ padding: "20px", background: "purple" }}>
       <label>
         Password:
         <input
@@ -35,8 +38,15 @@ const App = () => {
             width: "90%",
             margin: "10px 0",
           }}
+          ref={passwordref}
         />
       </label>
+      <button
+        onClick={clipboardcopy}
+        style={{ marginLeft: "10px", cursor: "grab", transition: "blue 0.01s" }}
+      >
+        Copy
+      </button>
       <br />
       <label>
         Length: {length}
@@ -45,9 +55,11 @@ const App = () => {
           min={6}
           max={20}
           value={length}
+          style={{ backgroundColor: "red" }}
           onChange={(e) => setLength(Number(e.target.value))}
         />
       </label>
+
       <br />
       <label>
         Include Numbers:
